@@ -7,8 +7,8 @@
         return false;
     }
 
-    var width = canvas.width();
-    var height = canvas.height();
+    var width = 1100;
+    var height = 680;
 
     canvas.attr("width", width);
     canvas.attr("height", height);
@@ -54,22 +54,53 @@
     var foot = tree.footer;
     var hold = 1;
 
-    canvas.click(function (e) {
-        var offset = canvas.offset(), x, y;
+    var interactionHandler = function (e) {
         var scale = window.currentScale || 1;
-        x = (e.pageX - offset.left) / scale;
-        y = (e.pageY - offset.top) / scale;
+        var rect = canvas[0].getBoundingClientRect();
+
+        var clientX, clientY;
+        if (e.type == 'touchstart') {
+            clientX = e.originalEvent.touches[0].clientX;
+            clientY = e.originalEvent.touches[0].clientY;
+            e.preventDefault();
+        } else {
+            clientX = e.clientX;
+            clientY = e.clientY;
+        }
+
+        var x, y;
+        if (window.isRotated) {
+            // Rotated 90deg clockwise:
+            // New X = (clientY - rect.top) / scale
+            // New Y = (rect.right - clientX) / scale
+            x = (clientY - rect.top) / scale;
+            y = (rect.right - clientX) / scale;
+        } else {
+            x = (clientX - rect.left) / scale;
+            y = (clientY - rect.top) / scale;
+        }
+
         if (seed.hover(x, y)) {
             hold = 0;
-            canvas.unbind("click");
+            canvas.unbind("click touchstart");
             canvas.unbind("mousemove");
             canvas.removeClass("hand");
         }
-    }).mousemove(function (e) {
-        var offset = canvas.offset(), x, y;
+    };
+
+    canvas.bind("click touchstart", interactionHandler);
+
+    canvas.mousemove(function (e) {
         var scale = window.currentScale || 1;
-        x = (e.pageX - offset.left) / scale;
-        y = (e.pageY - offset.top) / scale;
+        var rect = canvas[0].getBoundingClientRect();
+        var x, y;
+        if (window.isRotated) {
+            x = (e.clientY - rect.top) / scale;
+            y = (rect.right - e.clientX) / scale;
+        } else {
+            x = (e.clientX - rect.left) / scale;
+            y = (e.clientY - rect.top) / scale;
+        }
         canvas.toggleClass("hand", seed.hover(x, y));
     });
 
