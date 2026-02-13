@@ -19,6 +19,8 @@ function updateScale() {
 
 $(window).resize(updateScale);
 $(document).ready(updateScale);
+$(window).on('load', updateScale);
+updateScale(); // Immediate call
 
 (function ($) {
 	$.fn.typewriter = function () {
