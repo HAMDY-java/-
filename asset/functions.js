@@ -8,13 +8,21 @@ function updateScale() {
 	var targetWidth = 1100;
 	var targetHeight = 680;
 
-	var scaleX = winWidth / targetWidth;
-	var scaleY = winHeight / targetHeight;
-	// Use the smaller scale factor to fit the screen
-	window.currentScale = Math.min(scaleX, scaleY, 1);
+	var isPortrait = winHeight > winWidth;
+	window.isRotated = isPortrait;
 
-	// Apply scale to the wrapper
-	$("#wrap").css("transform", "scale(" + window.currentScale + ")");
+	if (isPortrait) {
+		// Rotate 90deg: Swap target width/height for scaling calculations
+		var scaleX = winWidth / targetHeight;
+		var scaleY = winHeight / targetWidth;
+		window.currentScale = Math.min(scaleX, scaleY, 1);
+		$("#wrap").css("transform", "rotate(90deg) scale(" + window.currentScale + ")");
+	} else {
+		var scaleX = winWidth / targetWidth;
+		var scaleY = winHeight / targetHeight;
+		window.currentScale = Math.min(scaleX, scaleY, 1);
+		$("#wrap").css("transform", "scale(" + window.currentScale + ")");
+	}
 }
 
 $(window).resize(updateScale);
